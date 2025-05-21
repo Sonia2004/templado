@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruta Óptima - TSP</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background: #4B0082; /* Morado oscuro */
+            color: #FFFFFF;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            height: 100vh;
+            padding-top: 40px;
+            margin: 0;
+        }
+        .container {
+            width: 650px;
+            background: #D8BFD8; /* Lavanda */
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0px 8px 20px rgba(255, 255, 255, 0.5);
+            border: 5px solid #FFFFFF; /* Borde blanco grueso e iluminado */
+        }
+        h1 {
+            color: #8A2BE2;
+            font-size: 30px;
+            margin-bottom: 35px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        label {
+            font-weight: bold; /* Texto en negritas */
+            display: block;
+            margin-top: 15px;
+            color: black; /* Color oscuro para mayor contraste */
+        }
+        select, input {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            border-radius: 10px;
+            border: 2px solid #8A2BE2;
+            font-size: 16px;
+            background: #fff;
+            color: black; /* Texto dentro normal */
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            margin-top: 30px;
+            border-radius: 10px;
+            border: none;
+            font-size: 22px;
+            background: #9370DB; /* Botón morado suave */
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0px 6px 12px rgba(147, 112, 219, 0.5);
+        }
+        button:hover {
+            background: #7A4DAC;
+            transform: scale(1.1);
+            box-shadow: 0px 8px 15px rgba(147, 112, 219, 0.8);
+        }
+        .resultado {
+            font-size: 22px;
+            margin-top: 30px;
+            font-weight: bold;
+            color: #8A2BE2;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.5s ease-in-out;
+        }
+        .resultado.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Optimización de Ruta - Templado Simulado</h1>
+        <form id="rutaForm">
+            <label for="tempInicial">Temperatura:</label>
+            <input type="number" id="tempInicial" required>
+
+            <label for="tempMin">Temperatura mínima:</label>
+            <input type="number" id="tempMin" required>
+
+            <label for="velEnfriamiento">Velocidad de enfriamiento:</label>
+            <input type="number" id="velEnfriamiento" required>
+
+            <label for="origen">Ciudad origen:</label>
+            <select id="origen">
+                <option value="Jiloyork">Jiloyork</option>
+                <option value="Toluca">Toluca</option>
+                <option value="Atlacomulco">Atlacomulco</option>
+                <option value="Guadalajara">Guadalajara</option>
+                <option value="Monterrey">Monterrey</option>
+                <option value="QuintanaRoo">Quintana Roo</option>
+                <option value="Michohacan">Michohacán</option>
+                <option value="Aguascalientes">Aguascalientes</option>
+                <option value="CDMX">CDMX</option>
+                <option value="QRO">Querétaro</option>
+            </select>
+
+            <label for="destino">Ciudad destino:</label>
+            <select id="destino">
+                <option value="Jiloyork">Jiloyork</option>
+                <option value="Toluca">Toluca</option>
+                <option value="Atlacomulco">Atlacomulco</option>
+                <option value="Guadalajara">Guadalajara</option>
+                <option value="Monterrey">Monterrey</option>
+                <option value="QuintanaRoo">Quintana Roo</option>
+                <option value="Michohacan">Michohacán</option>
+                <option value="Aguascalientes">Aguascalientes</option>
+                <option value="CDMX">CDMX</option>
+                <option value="QRO">Querétaro</option>
+            </select>
+
+            <button type="submit">Calcular Ruta</button>
+        </form>
+        <div class="resultado" id="resultado"></div>
+    </div>
+
+    <script>
+        document.getElementById('rutaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            let datos = {
+                temperatura_inicial: parseFloat(document.getElementById('tempInicial').value),
+                temperatura_minima: parseFloat(document.getElementById('tempMin').value),
+                velocidad_enfriamiento: parseInt(document.getElementById('velEnfriamiento').value)
+            };
+
+            fetch('/ruta', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultadoDiv = document.getElementById('resultado');
+                resultadoDiv.innerHTML = 
+                    `<strong>Ruta óptima:</strong> ${data.ruta_optima.join(" → ")}<br>` +
+                    `<strong>Distancia total:</strong> ${data.distancia_total.toFixed(2)} km`;
+                resultadoDiv.classList.add("show");
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
