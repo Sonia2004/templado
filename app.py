@@ -35,7 +35,7 @@ def simulated_annealing(ruta, T, T_MIN, V_enfriamiento):
     while T > T_MIN:
         dist_actual = evalua_ruta(ruta)
         for _ in range(V_enfriamiento):
-            i, j = random.sample(range(len(ruta)), 2)
+            i, j = random.sample(range(1, len(ruta)-1), 2)  # Evita mover origen/destino
             ruta_tmp = ruta[:]
             ruta_tmp[i], ruta_tmp[j] = ruta_tmp[j], ruta_tmp[i]
             dist_nueva = evalua_ruta(ruta_tmp)
@@ -57,14 +57,32 @@ def index():
 @app.route('/ruta', methods=['POST'])
 def obtener_ruta():
     datos = request.json
-    T = datos['temperatura_inicial']
-    T_MIN = datos['temperatura_minima']
-    V_enfriamiento = datos['velocidad_enfriamiento']
 
-    ruta = list(coord.keys())  # Usa todas las ciudades definidas
-    random.shuffle(ruta)  # Mezcla la ruta inicial aleatoriamente
+    print("Datos recibidos:", datos)  # Depuración: Ver los datos en la consola
 
-    ruta_optima = simulated_annealing(ruta, T, T_MIN, V_enfriamiento)
+    if not datos:
+        return jsonify({'error': 'No se recibieron datos'}), 400
+
+    origen = datos.get('origen')
+    destino = datos.get('destino')
+
+    if not origen or not destino:
+        return jsonify({'error': 'Debes seleccionar una ciudad de origen y destino'}), 400
+
+    if origen not in coord or destino not in coord:
+        return jsonify({'error': 'Las ciudades seleccionadas no son válidas'}), 400
+
+    T = datos.get('temperatura_inicial', 100)
+    T_MIN = datos.get('temperatura_minima', 1)
+    V_enfriamiento = datos.get('velocidad_enfriamiento', 500)
+
+    # Filtrar ciudades intermedias
+    ciudades_intermedias = [ciudad for ciudad in coord.keys() if ciudad not in [origen, destino]]
+    random.shuffle(ciudades_intermedias)
+
+    # Generar ruta inicial con origen y destino fijos
+    ruta_inicial = [origen] + ciudades_intermedias + [destino]
+    ruta_optima = simulated_annealing(ruta_inicial, T, T_MIN, V_enfriamiento)
 
     return jsonify({
         'ruta_optima': ruta_optima,

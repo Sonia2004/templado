@@ -132,13 +132,17 @@
     <script>
         document.getElementById('rutaForm').addEventListener('submit', function(event) {
             event.preventDefault();
-
+    
             let datos = {
                 temperatura_inicial: parseFloat(document.getElementById('tempInicial').value),
                 temperatura_minima: parseFloat(document.getElementById('tempMin').value),
-                velocidad_enfriamiento: parseInt(document.getElementById('velEnfriamiento').value)
+                velocidad_enfriamiento: parseInt(document.getElementById('velEnfriamiento').value),
+                origen: document.getElementById('origen').value,
+                destino: document.getElementById('destino').value
             };
-
+    
+            console.log("Datos enviados:", datos); // Depuración: Ver los datos antes de enviarlos
+    
             fetch('/ruta', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -146,14 +150,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                let resultadoDiv = document.getElementById('resultado');
-                resultadoDiv.innerHTML = 
-                    `<strong>Ruta óptima:</strong> ${data.ruta_optima.join(" → ")}<br>` +
-                    `<strong>Distancia total:</strong> ${data.distancia_total.toFixed(2)} km`;
-                resultadoDiv.classList.add("show");
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    let resultadoDiv = document.getElementById('resultado');
+                    resultadoDiv.innerHTML = 
+                        `<strong>Ruta óptima:</strong> ${data.ruta_optima.join(" → ")}<br>` +
+                        `<strong>Distancia total:</strong> ${data.distancia_total.toFixed(2)} km`;
+                    resultadoDiv.classList.add("show");
+                }
             })
             .catch(error => console.error('Error:', error));
         });
     </script>
+    
 </body>
 </html>
